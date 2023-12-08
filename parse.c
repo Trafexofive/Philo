@@ -26,7 +26,8 @@ char    **tokenize(char **av, char delim)
     char    *appended_str;
 
     j = 0;
-    i = 0;
+    i = 1;
+    appended_str = ft_strjoin(av[1], av[1]);
     while (av[++i])
         appended_str = ft_strjoin(appended_str, av[i]);
     printf("%s", appended_str);
@@ -41,6 +42,14 @@ char    **tokenize(char **av, char delim)
     return (NULL);
 }
 
+// static bool is_whitespace(const char c)
+// {
+// 	if (c == '\n' || c == '\t' || c == '\v'
+// 		|| c == '\f' || c == '\r' || c == ' ')
+// 		return (TRUE);
+// 	else
+// 		return (FALSE);
+// }
 
 // bool  valid_args(int ac, char **av)
 // {
