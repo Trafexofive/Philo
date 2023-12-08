@@ -18,16 +18,15 @@ void    matrix_free(char **ptr)
 }
 
 
-char    **tokenize(int ac, char **av, char delim)
+char    **tokenize(char **av, char delim)
 {
     int i;
     int j;
     char    **args;
     char    *appended_str;
-    char    *tmp;
 
     j = 0;
-    i = -1;
+    i = 0;
     while (av[++i])
         appended_str = ft_strjoin(appended_str, av[i]);
     printf("%s", appended_str);
@@ -59,8 +58,9 @@ bool  parse(int ac, char **av)
   int i;
 
   i = 0;
+    (void) ac;
   // if (valid_args(ac, av))
-    if (tokenize(ac,av, ' '))
+    if (tokenize(av, ' '))
   	    return (TRUE);
 
     return (TRUE);
