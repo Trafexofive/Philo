@@ -16,6 +16,16 @@
 
 
 
+/* =========> structs <===========*/
+
+typedef struct
+{
+    unsigned int    number;
+    unsigned int    to_die;
+    unsigned int    to_sleep;
+    unsigned int    to_eat;
+}philo;
+
 /* =========> Defines <===========*/
 
 bool  parse(int ac, char **av);

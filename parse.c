@@ -26,20 +26,21 @@ char    **tokenize(char **av, char delim)
     char    *appended_str;
 
     j = 0;
-    i = 1;
-    appended_str = ft_strjoin(av[1], av[1]);
+    i = 0;
+    appended_str = ft_strdup("");
     while (av[++i])
         appended_str = ft_strjoin(appended_str, av[i]);
-    printf("%s", appended_str);
+    // printf("%s", appended_str);
+    i = -1;
+    while (appended_str[++i])
+        args = ft_split(appended_str, delim);
     free(appended_str);
-    while (av[++i])
-    {
-        args = ft_split(av[i], delim);
-    
-    }
+    i = -1;
+    while (args[++i])
+        printf("%s\n", args[i]);
     matrix_free(args);
     
-    return (NULL);
+    return (args);
 }
 
 // static bool is_whitespace(const char c)
