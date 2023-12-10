@@ -18,68 +18,93 @@ void    matrix_free(char **ptr)
 }
 
 
-char    **tokenize(char **av, char delim)
-{
-    int i;
-    int j;
-    char    **args;
-    char    *appended_str;
 
-    j = 0;
-    i = 0;
-    appended_str = ft_strdup("");
-    while (av[++i])
-        appended_str = ft_strjoin(appended_str, av[i]);
-    // printf("%s", appended_str);
-    i = -1;
-    while (appended_str[++i])
-        args = ft_split(appended_str, delim);
-    free(appended_str);
-    i = -1;
-    while (args[++i])
-        printf("%s\n", args[i]);
-    matrix_free(args);
-    
-    return (args);
+static bool is_whitespace(const char c)
+{
+	if (c == '\n' || c == '\t' || c == '\v'
+		|| c == '\f' || c == '\r' || c == ' ')
+		return (TRUE);
+	else
+		return (FALSE);
 }
 
-// static bool is_whitespace(const char c)
-// {
-// 	if (c == '\n' || c == '\t' || c == '\v'
-// 		|| c == '\f' || c == '\r' || c == ' ')
-// 		return (TRUE);
-// 	else
-// 		return (FALSE);
-// }
-
-// bool  valid_args(int ac, char **av)
-// {
-//
-//     int i;
-//
-//     i = 0;
-//     
-//
-// }
-
-
-bool  parse(int ac, char **av)
+t_philo *init_struct(char **av)
 {
-  int i;
+    t_philo *data;
 
-  i = 0;
-    (void) ac;
-  // if (valid_args(ac, av))
-    if (tokenize(av, ' '))
-  	    return (TRUE);
+    data = malloc(sizeof(t_philo));
+
+    data->num = ft_atoi(av[1]);
+    data->ttd = ft_atoi(av[2]);
+    data->tte = ft_atoi(av[3]);
+    data->tts = ft_atoi(av[4]);
+
+    return (data);
+}
+
+bool    is_digit(int c)
+{
+    if (c >= 48 && c <= 57)
+        return (TRUE);
+     return (FALSE);
+}
+bool    check_ac(int ac)
+{
+    if (ac == 5)
+        return (TRUE);
+    if (ac > 5)
+    {
+        ft_putstr_fd("Too many arguments\n", 1);
+        exit(1);
+    }
+    else if (ac < 5)
+    {
+        ft_putstr_fd("Too few arguments\n", 1);
+        exit(1);
+    }
 
     return (TRUE);
 }
 
-
-int main(int ac, char *av[])
+bool    valid_args(int ac, char **av)
 {
-    parse(ac, av);
+    int i;
+    int j;
 
-    return EXIT_SUCCESS;
+    i = 1;
+    if (!check_ac(ac))
+        return (FALSE);
+    while (av[i])
+    {
+        j = 0;
+        while (av[i][j])
+        {
+            if (is_digit(av[i][j]) == FALSE|| is_whitespace(av[i][j]) == TRUE)
+            {
+                ft_putstr_fd("Invalid arguments", 1);
+                exit(1);
+            }
+            j++;
+        }
+        i++;
+    }
+    return (TRUE);
 }
+
+t_philo *parse(int ac, char **av)
+{
+    t_philo *data;
+
+    if (valid_args(ac, av))
+        data = init_struct(av);
+    printf("%d\n", data->num);
+    return (data);
+}
+
+
+// int main(int ac, char *av[])
+// {
+//     parse(ac, av);
+//
+//     return EXIT_SUCCESS;
+// }

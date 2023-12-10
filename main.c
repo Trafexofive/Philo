@@ -1,11 +1,14 @@
 
 
-void    parse(int ac, char **av);
-
+#include "philo.h"
 
 int main(int ac, char *av[])
 {
+    t_philo *data;
 
-    parse(ac,av);
+    data = parse(ac,av);
+
+
+
     return EXIT_SUCCESS;
 }
