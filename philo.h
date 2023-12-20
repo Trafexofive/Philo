@@ -7,6 +7,7 @@
 # include <unistd.h>
 # include <stdarg.h>
 # include <stdbool.h>
+# include <pthread.h>
 # include "libft/libft.h"
 
 /* =========> Macros <=============*/
