@@ -18,7 +18,6 @@ void    matrix_free(char **ptr)
 }
 
 
-
 static bool is_whitespace(const char c)
 {
 	if (c == '\n' || c == '\t' || c == '\v'
@@ -28,9 +27,9 @@ static bool is_whitespace(const char c)
 		return (FALSE);
 }
 
-t_philo *init_struct(char **av)
+t_parse *init_args(char **av)
 {
-    t_philo *data;
+    t_parse *data;
 
     data = malloc(sizeof(t_philo));
 
@@ -38,6 +37,10 @@ t_philo *init_struct(char **av)
     data->ttd = ft_atoi(av[2]);
     data->tte = ft_atoi(av[3]);
     data->tts = ft_atoi(av[4]);
+    if (argv[5])
+      data->ntte = ft_atoi(av[5]);
+    else
+      data->ntte = -1;
 
     return (data);
 }
@@ -93,14 +96,12 @@ bool    valid_args(int ac, char **av)
 
 t_philo *parse(int ac, char **av)
 {
-    t_philo *data;
+    t_parse *data;
 
     if (valid_args(ac, av))
         data = init_struct(av);
-    printf("%d\n", data->num);
     return (data);
 }
-
 
 // int main(int ac, char *av[])
 // {
