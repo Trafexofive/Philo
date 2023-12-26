@@ -37,7 +37,7 @@ t_parse *init_args(char **av)
     data->ttd = ft_atoi(av[2]);
     data->tte = ft_atoi(av[3]);
     data->tts = ft_atoi(av[4]);
-    if (argv[5])
+    if (av[5])
       data->ntte = ft_atoi(av[5]);
     else
       data->ntte = -1;
@@ -65,7 +65,6 @@ bool    check_ac(int ac)
         ft_putstr_fd("Too few arguments\n", 1);
         exit(1);
     }
-
     return (TRUE);
 }
 
@@ -94,18 +93,11 @@ bool    valid_args(int ac, char **av)
     return (TRUE);
 }
 
-t_philo *parse(int ac, char **av)
+t_parse *parse(int ac, char **av)
 {
     t_parse *data;
 
     if (valid_args(ac, av))
-        data = init_struct(av);
+        data = init_args(av);
     return (data);
 }
-
-// int main(int ac, char *av[])
-// {
-//     parse(ac, av);
-//
-//     return EXIT_SUCCESS;
-// }

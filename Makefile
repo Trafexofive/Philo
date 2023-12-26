@@ -5,7 +5,7 @@ NAME	:= philo
 
 CFLAGS	:= -Wextra -Wall -Werror 
 
-SRCS	:= parse.c
+SRCS	:= initialization.c parse.c
 LIBFT := libft/libft.a
 
 OBJS	:= ${SRCS:.c=.o}

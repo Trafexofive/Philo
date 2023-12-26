@@ -8,6 +8,7 @@
 # include <stdarg.h>
 # include <stdbool.h>
 # include <pthread.h>
+# include <stdio.h>
 # include "libft/libft.h"
 
 /* =========> Macros <=============*/
@@ -38,13 +39,13 @@ typedef struct    s_philo
 
 typedef struct    s_watchdog
 {
-  ;
+  int c;
   
-}
+}t_watchdog;
 
 /* =========> Defines <===========*/
 
-t_philo *parse(int ac, char **av);
+t_parse *parse(int ac, char **av);
 
 
 #endif
