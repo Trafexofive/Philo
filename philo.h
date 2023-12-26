@@ -19,7 +19,7 @@
 
 /* =========> structs <===========*/
 
-typedef struct
+typedef struct    s_philo
 {
     unsigned int    num;
     unsigned int    ttd;
@@ -27,6 +27,12 @@ typedef struct
     unsigned int    tte;
 
 }t_philo;
+
+typedef struct    s_watchdog
+{
+  struct s_philo  *fork;
+  
+}
 
 /* =========> Defines <===========*/
 
