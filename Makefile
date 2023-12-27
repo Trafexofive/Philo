@@ -3,7 +3,7 @@ CC := cc
 
 NAME	:= philo
 
-CFLAGS	:= -Wextra -Wall -Werror 
+CFLAGS	:= -Wextra -Wall -Werror -pthread
 
 SRCS	:= main.c parse.c
 LIBFT := libft/libft.a
@@ -13,7 +13,7 @@ OBJS	:= ${SRCS:.c=.o}
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(PRINTF) -o $(NAME) -pthread
+	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(PRINTF) -o $(NAME)
 
 lib : 
 	@make -C ./libft 

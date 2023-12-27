@@ -1,12 +1,11 @@
 
-
 #include "philo.h"
 
 void lock_forks(t_philo *philo) {
   pthread_mutex_lock(&philo->left_fork);
-  printf("%u\n %s", philo->id, PICK);
+  printf("%u %s\n", philo->id, PICK);
   pthread_mutex_lock(philo->right_fork);
-  printf("%u\n %s", philo->id, PICK);
+  printf("%u %s\n", philo->id, PICK);
 }
 
 void unlock_forks(t_philo *philo) {
@@ -17,7 +16,7 @@ void unlock_forks(t_philo *philo) {
 void eating(t_philo *philo) {
   lock_forks(philo);
   philo->times_eaten += 1;
-  printf("%u\n %s", philo->id, EAT);
+  printf("%u %s\n", philo->id, EAT);
   usleep(philo->parse->tte);
   unlock_forks(philo);
 }
@@ -28,9 +27,7 @@ void routine(void *data) {
   t_philo *philo;
 
   philo = (t_philo *)data;
-  while (1) {
-
-    puts("hello");
+  while (TRUE) {
     eating(philo);
     sleeping(philo);
     printf("%u\n %s", philo->id, SLEEP);

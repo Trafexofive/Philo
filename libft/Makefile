@@ -17,10 +17,9 @@ CFLAGS = -Wall -Wextra -Werror
 NAME = libft.a
 
 SRC =	ft_strlen.c ft_bzero.c\
-		ft_strchr.c\
-		ft_substr.c ft_strjoin.c ft_strtrim.c ft_putchar_fd.c\
+		ft_putchar_fd.c\
 		ft_putstr_fd.c ft_putnbr_fd.c ft_calloc.c\
-		ft_strdup.c ft_atoi.c ft_split.c get_next_line.c \
+		ft_strdup.c ft_atoi.c \
 
 OBJ = $(SRC:.c=.o)
 
