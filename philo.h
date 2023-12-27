@@ -15,6 +15,10 @@
 #define TRUE 1
 #define FALSE 0
 #define MAX_PHILO 200
+#define EAT "is eating"
+#define SLEEP "is sleeping"
+#define THINKING "is thinking"
+#define PICK "has taken a fork"
 
 /* =========> structs <===========*/
 
@@ -26,7 +30,7 @@ typedef struct s_parse {
   unsigned int tte;
   int ntte;
   pthread_mutex_t allow_print;
-  bool            dead;
+  
 
 } t_parse;
 
@@ -36,13 +40,9 @@ typedef struct s_philo {
   unsigned int id;
   pthread_mutex_t left_fork;
   pthread_mutex_t *right_fork;
+  bool            dead;
   unsigned int    times_eaten;
-
-
-
-
-
-
+  struct s_parse *parse;
 
 
 } t_philo;
@@ -50,7 +50,6 @@ typedef struct s_philo {
 //detach no longger use?
 //
 typedef struct s_watchdog {
-  int c;
 
 } t_watchdog;
 

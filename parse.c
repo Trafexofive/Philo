@@ -27,6 +27,7 @@ t_parse *init_args(char **av) {
     data->ntte = ft_atoi(av[5]);
   else
     data->ntte = -1;
+    data->dead = FALSE;
 
   return (data);
 }

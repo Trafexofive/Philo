@@ -2,15 +2,50 @@
 
 #include "philo.h"
 
-void *routine(void) {
-  int i = 0;
+void  lock_forks(t_philo *philo)
+{
+  pthread_mutex_lock(philo->left_fork, NULL);
+  pthread_mutex_lock(philo->right_fork, NULL);
+}
 
-  while (i < 10) {
+void  unlock_forks(t_philo *philo)
+{
+  pthread_mutex_unlock(philo->left_fork, NULL);
+  pthread_mutex_unlock(philo->right_fork, NULL);
+}
+
+void  sleep()
+
+
+void  eat(t_philo *philo)
+{
+  lock_forks(philo);
+  printf ("%s\n", "")
+  philo->times_eaten += 1;
+
+
+}
+
+
+void  sleep(t_philo *philo)
+{
+
+
+}
+
+
+void routine(void *data) {
+  int i = 0;
+  t_philo *philo;
+
+  philo = (t_philo *) data;
+  while (1) {
+    eat(philo);
+    sleep(philo);
+    think(philo);
     i++;
-    puts("hello\n");
-    usleep(10000);
   }
-  return NULL;
+  
 }
 
 void default_philo(t_philo *philo, pthread_mutex_t *fork, t_parse *parse) {
@@ -35,7 +70,7 @@ void exit_status(char *str) {
   exit(1);
 }
 
-void init_forks(t_parse *parse) {
+void init_forks(t_parse *parse, pthread_mutex_t *fork) {
   unsigned int i;
 
   i = 0;
@@ -45,8 +80,8 @@ void init_forks(t_parse *parse) {
       exit_status("Mutex Init Error\n");
     i++;
   }
-  return (NULL);
 }
+
 
 void init_philos(t_philo *philo, t_parse *data) {
   unsigned int i;
@@ -54,21 +89,23 @@ void init_philos(t_philo *philo, t_parse *data) {
   i = 0;
 
   while (i < data->max) {
-    if (pthread_create(philo[i], NULL, routine, (void *)i) != 0)
+    if (pthread_create(&philo[i].philo, NULL, (void *)routine, (void *)&philo[i]) != 0)
       exit_status("Thread Creating Error\n");
     i++;
   }
 }
 
 int main(int ac, char *av[]) {
-  t_philo philo[200];
-  pthread_mutex_t fork[200];
+  t_philo philo[20];
+  pthread_mutex_t fork[20];
   t_parse *data;
 
   data = parse(ac, av);
+  init_forks(data, fork);
+  default_philo(philo, fork, data);
   init_philos(philo, data);
-  init_forks(data);
-  default_philo(philo, );
+  while (data->dead != TRUE)
+    usleep(1000);
 
   return 0;
 }
