@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 /* =========> Macros <=============*/
@@ -31,6 +32,8 @@ typedef struct s_parse {
   unsigned int ntte;
 
   pthread_mutex_t allow_print;
+  pthread_mutex_t is_dead;
+  unsigned int dead;
 
 } t_parse;
 
@@ -38,9 +41,8 @@ typedef struct s_philo {
   pthread_t philo;
 
   unsigned int id;
-  pthread_mutex_t left_fork;
+  pthread_mutex_t *left_fork;
   pthread_mutex_t *right_fork;
-  unsigned int dead;
   unsigned int times_eaten;
   struct s_parse *parse;
 

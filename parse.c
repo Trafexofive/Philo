@@ -26,6 +26,9 @@ t_parse *init_args(char **av) {
     data->ntte = ft_atoi(av[5]);
   else
     data->ntte = -1;
+	data->dead = 0;
+	  pthread_mutex_init(&data->allow_print, NULL);
+	  pthread_mutex_init(&data->is_dead, NULL);
 
   return (data);
 }
