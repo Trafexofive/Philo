@@ -6,98 +6,83 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void    matrix_free(char **ptr)
-{
-    int i;
+void matrix_free(char **ptr) {
+  int i;
 
-    i = -1;
-    while (ptr[++i])
-        free(ptr[i]);
-    free (ptr);
-    ptr = NULL;
+  i = -1;
+  while (ptr[++i])
+    free(ptr[i]);
+  free(ptr);
+  ptr = NULL;
 }
 
-
-static bool is_whitespace(const char c)
-{
-	if (c == '\n' || c == '\t' || c == '\v'
-		|| c == '\f' || c == '\r' || c == ' ')
-		return (TRUE);
-	else
-		return (FALSE);
-}
-
-t_parse *init_args(char **av)
-{
-    t_parse *data;
-
-    data = malloc(sizeof(t_philo));
-
-    data->num = ft_atoi(av[1]);
-    data->ttd = ft_atoi(av[2]);
-    data->tte = ft_atoi(av[3]);
-    data->tts = ft_atoi(av[4]);
-    if (av[5])
-      data->ntte = ft_atoi(av[5]);
-    else
-      data->ntte = -1;
-
-    return (data);
-}
-
-bool    is_digit(int c)
-{
-    if (c >= 48 && c <= 57)
-        return (TRUE);
-     return (FALSE);
-}
-bool    check_ac(int ac)
-{
-    if (ac == 5)
-        return (TRUE);
-    if (ac > 5)
-    {
-        ft_putstr_fd("Too many arguments\n", 1);
-        exit(1);
-    }
-    else if (ac < 5)
-    {
-        ft_putstr_fd("Too few arguments\n", 1);
-        exit(1);
-    }
+static bool is_whitespace(const char c) {
+  if (c == '\n' || c == '\t' || c == '\v' || c == '\f' || c == '\r' || c == ' ')
     return (TRUE);
+  else
+    return (FALSE);
 }
 
-bool    valid_args(int ac, char **av)
-{
-    int i;
-    int j;
+t_parse *init_args(char **av) {
+  t_parse *data;
 
-    i = 1;
-    if (!check_ac(ac))
-        return (FALSE);
-    while (av[i])
-    {
-        j = 0;
-        while (av[i][j])
-        {
-            if (is_digit(av[i][j]) == FALSE|| is_whitespace(av[i][j]) == TRUE)
-            {
-                ft_putstr_fd("Invalid arguments", 1);
-                exit(1);
-            }
-            j++;
-        }
-        i++;
-    }
+  data = malloc(sizeof(t_philo));
+
+  data->num = ft_atoi(av[1]);
+  data->ttd = ft_atoi(av[2]);
+  data->tte = ft_atoi(av[3]);
+  data->tts = ft_atoi(av[4]);
+  if (av[5])
+    data->ntte = ft_atoi(av[5]);
+  else
+    data->ntte = -1;
+
+  return (data);
+}
+
+bool is_digit(int c) {
+  if (c >= 48 && c <= 57)
     return (TRUE);
+  return (FALSE);
+}
+bool check_ac(int ac) {
+  if (ac == 5)
+    return (TRUE);
+  if (ac > 5) {
+    ft_putstr_fd("Too many arguments\n", 1);
+    exit(1);
+  } else if (ac < 5) {
+    ft_putstr_fd("Too few arguments\n", 1);
+    exit(1);
+  }
+  return (TRUE);
 }
 
-t_parse *parse(int ac, char **av)
-{
-    t_parse *data;
+bool valid_args(int ac, char **av) {
+  int i;
+  int j;
 
-    if (valid_args(ac, av))
-        data = init_args(av);
-    return (data);
+  i = 1;
+  if (!check_ac(ac))
+    return (FALSE);
+  while (av[i]) {
+    j = 0;
+    while (av[i][j]) {
+      if (is_digit(av[i][j]) == FALSE || is_whitespace(av[i][j]) == TRUE) {
+        ft_putstr_fd("Invalid arguments", 1);
+        exit(1);
+      }
+      j++;
+    }
+    i++;
+  }
+  return (TRUE);
+}
+
+t_parse *parse(int ac, char **av) {
+  t_parse *data;
+
+  if (valid_args(ac, av))
+    data = init_args(av);
+  return (data);
 }
