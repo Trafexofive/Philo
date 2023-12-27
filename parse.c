@@ -16,7 +16,7 @@ static bool is_whitespace(const char c) {
 t_parse *init_args(char **av) {
   t_parse *data;
 
-  data = malloc(sizeof(t_philo));
+  data = malloc(sizeof(t_parse));
 
   data->max = ft_atoi(av[1]);
   data->ttd = ft_atoi(av[2]);
@@ -36,9 +36,9 @@ bool is_digit(int c) {
   return (FALSE);
 }
 bool check_ac(int ac) {
-  if (ac == 5)
+  if (ac == 5 || ac == 6)
     return (TRUE);
-  if (ac > 5) {
+  if (ac > 6) {
     ft_putstr_fd("Too many arguments\n", 1);
     exit(1);
   } else if (ac < 5) {

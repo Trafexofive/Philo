@@ -29,9 +29,8 @@ void routine(void *data) {
 
   philo = (t_philo *)data;
   while (1) {
-    if (philo->parse->ntte <= philo->times_eaten)
-      break;
 
+    puts("hello");
     eating(philo);
     sleeping(philo);
     printf("%u\n %s", philo->id, SLEEP);
@@ -51,7 +50,6 @@ void default_philo(t_philo *philo, pthread_mutex_t *fork, t_parse *parse) {
       philo[parse->max].right_fork = &fork[i];
     else
       philo[i].right_fork = &fork[i + 1];
-
     i++;
   }
 }
