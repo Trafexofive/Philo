@@ -3,7 +3,7 @@ CC := cc
 
 NAME	:= philo
 
-CFLAGS	:= -Wextra -Wall -Werror -pthread -fsanitize=thread 
+CFLAGS	:= -Wextra -Wall -Werror -fsanitize=address
 
 SRCS	:= main.c parse.c
 LIBFT := libft/libft.a
