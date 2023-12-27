@@ -24,11 +24,12 @@
 
 typedef struct s_parse {
 
-  unsigned int max;
-  unsigned int ttd;
-  unsigned int tts;
-  unsigned int tte;
-  int ntte;
+  long  max;
+  long  ttd;
+  long  tts;
+  long   tte;
+  long    ntte;
+
   pthread_mutex_t allow_print;
   
 
@@ -40,7 +41,7 @@ typedef struct s_philo {
   unsigned int id;
   pthread_mutex_t left_fork;
   pthread_mutex_t *right_fork;
-  bool            dead;
+  bool            *dead;
   unsigned int    times_eaten;
   struct s_parse *parse;
 

@@ -4,46 +4,41 @@
 
 void  lock_forks(t_philo *philo)
 {
-  pthread_mutex_lock(philo->left_fork, NULL);
-  pthread_mutex_lock(philo->right_fork, NULL);
+  pthread_mutex_lock(&philo->left_fork);
+  printf("%u\n %s", philo->id, PICK);
+  pthread_mutex_lock(philo->right_fork);
+  printf("%u\n %s", philo->id, PICK);
 }
 
 void  unlock_forks(t_philo *philo)
 {
-  pthread_mutex_unlock(philo->left_fork, NULL);
-  pthread_mutex_unlock(philo->right_fork, NULL);
+  pthread_mutex_unlock(&philo->left_fork);
+  pthread_mutex_unlock(philo->right_fork);
 }
 
-void  sleep()
-
-
-void  eat(t_philo *philo)
+void  eating(t_philo *philo)
 {
   lock_forks(philo);
-  printf ("%s\n", "")
   philo->times_eaten += 1;
-
-
+  printf("%u\n %s", philo->id, EAT);
+  usleep(philo->parse->tte);
+  unlock_forks(philo);
 }
 
-
-void  sleep(t_philo *philo)
+void  sleeping(t_philo *philo)
 {
-
-
+  usleep(philo->parse->tts);
 }
-
 
 void routine(void *data) {
-  int i = 0;
   t_philo *philo;
 
   philo = (t_philo *) data;
   while (1) {
-    eat(philo);
-    sleep(philo);
-    think(philo);
-    i++;
+    if (philo->parse->ntte <= philo->times_eaten)
+    eating(philo);
+    sleeping(philo);
+    printf("%u\n %s", philo->id, SLEEP);
   }
   
 }
@@ -56,6 +51,7 @@ void default_philo(t_philo *philo, pthread_mutex_t *fork, t_parse *parse) {
     philo[i].id = i + 1;
     philo[i].left_fork = fork[i];
     philo[i].times_eaten = 0;
+    //philo[i].dead = FALSE;
     if (i == 0)
       philo[parse->max].right_fork = &fork[i];
     else
@@ -104,8 +100,6 @@ int main(int ac, char *av[]) {
   init_forks(data, fork);
   default_philo(philo, fork, data);
   init_philos(philo, data);
-  while (data->dead != TRUE)
-    usleep(1000);
 
   return 0;
 }
