@@ -5,7 +5,7 @@ NAME	:= philo
 
 CFLAGS	:= -Wextra -Wall -Werror 
 
-SRCS	:= initialization.c parse.c
+SRCS	:= main.c parse.c
 LIBFT := libft/libft.a
 
 OBJS	:= ${SRCS:.c=.o}
@@ -13,7 +13,7 @@ OBJS	:= ${SRCS:.c=.o}
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(PRINTF) -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(PRINTF) -o $(NAME) -pthread
 
 lib : 
 	@make -C ./libft 

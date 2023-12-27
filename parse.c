@@ -6,15 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void matrix_free(char **ptr) {
-  int i;
-
-  i = -1;
-  while (ptr[++i])
-    free(ptr[i]);
-  free(ptr);
-  ptr = NULL;
-}
 
 static bool is_whitespace(const char c) {
   if (c == '\n' || c == '\t' || c == '\v' || c == '\f' || c == '\r' || c == ' ')
@@ -28,7 +19,7 @@ t_parse *init_args(char **av) {
 
   data = malloc(sizeof(t_philo));
 
-  data->num = ft_atoi(av[1]);
+  data->max = ft_atoi(av[1]);
   data->ttd = ft_atoi(av[2]);
   data->tte = ft_atoi(av[3]);
   data->tts = ft_atoi(av[4]);
@@ -58,6 +49,10 @@ bool check_ac(int ac) {
   return (TRUE);
 }
 
+//check for max values in args
+
+
+
 bool valid_args(int ac, char **av) {
   int i;
   int j;
@@ -82,7 +77,11 @@ bool valid_args(int ac, char **av) {
 t_parse *parse(int ac, char **av) {
   t_parse *data;
 
+  data = 0;
   if (valid_args(ac, av))
+  {
     data = init_args(av);
-  return (data);
+    return (data);
+  }
+  return NULL;
 }
