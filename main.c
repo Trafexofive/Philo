@@ -6,28 +6,23 @@ void print_status(t_philo *philo, char *str) {
   printf("%u %s\n", philo->id, str);
   // pthread_mutex_unlock(&philo->parse->allow_print);
 }
+long long get_time(void) {
+  struct timeval tv;
 
-void lock_forks(t_philo *philo) {
-  pthread_mutex_lock(philo->left_fork);
-  // print_status(philo, PICK);
-  if (philo->right_fork)
-    pthread_mutex_lock(philo->right_fork);
-  // print_status(philo, PICK);
-}
-
-void unlock_forks(t_philo *philo) {
-  if (philo->left_fork)
-    pthread_mutex_unlock(philo->left_fork);
-  if (philo->right_fork)
-    pthread_mutex_unlock(philo->right_fork);
+  if (gettimeofday(&tv, NULL))
+    return 0;
+  return ((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000));
 }
 
 void eating(t_philo *philo) {
-  lock_forks(philo);
-  // philo->times_eaten += 1;
-  print_status(philo, EAT);
+  pthread_mutex_lock(philo->left_fork);
+  pthread_mutex_lock(philo->right_fork);
+
+  long long start = get_time();
+
+  while (get_time() - start < philo->parse->ttd)
+    print_status(philo, EAT);
   usleep(philo->parse->tte);
-  unlock_forks(philo);
 }
 
 void sleeping(t_philo *philo) { usleep(philo->parse->tts); }
@@ -46,19 +41,18 @@ void routine(void *data) {
   }
 }
 
-void default_philo(t_philo *philo, pthread_mutex_t *fork, t_parse *parse) {
+void default_philo(t_philo *philo, pthread_mutex_t *fork, t_parse *parse,
+                   pthread_mutex_t *watchdog) {
   unsigned int i;
 
   i = 0;
   while (i < parse->max) {
     philo[i].id = i + 1;
     philo[i].left_fork = &fork[i];
-    printf("\n%p", philo[i].left_fork);
     philo[i].times_eaten = 0;
     philo[i].parse = parse;
-    philo[i].right_fork = &fork[i + 1];
-    if (i == parse->max - 1)
-      philo[i].right_fork = &fork[0];
+    philo[i].right_fork = &fork[(i + 1) % parse->max];
+    philo[i].watchdog = &watchdog[i];
     i++;
   }
 }
@@ -68,13 +62,20 @@ void exit_status(char *str) {
   exit(1);
 }
 
-void init_forks(t_parse *parse, pthread_mutex_t *fork) {
+void init_forks(t_parse *parse, pthread_mutex_t *fork,
+                pthread_mutex_t *watchdog) {
   unsigned int i;
 
   i = 0;
 
   while (i < parse->max) {
     if (pthread_mutex_init(&fork[i], NULL) != 0)
+      exit_status("Mutex Init Error\n");
+    i++;
+  }
+  i = 0;
+  while (i < parse->max) {
+    if (pthread_mutex_init(&watchdog[i], NULL) != 0)
       exit_status("Mutex Init Error\n");
     i++;
   }
@@ -105,8 +106,9 @@ int main(int ac, char *av[]) {
   data = parse(ac, av);
   t_philo philo[data->max];
   pthread_mutex_t fork[data->max];
+  pthread_mutex_t watchdog[data->max];
 
-  init_forks(data, fork);
+  init_forks(data, fork, watchdog);
   default_philo(philo, fork, data);
   init_philos(philo, data);
 

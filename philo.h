@@ -44,15 +44,12 @@ typedef struct s_philo {
   pthread_mutex_t *left_fork;
   pthread_mutex_t *right_fork;
   unsigned int times_eaten;
+  unsigned int last_meal;
+  pthread_mutex_t *watchdog;
+
   struct s_parse *parse;
 
 } t_philo;
-
-// detach no longger use?
-//
-typedef struct s_watchdog {
-
-} t_watchdog;
 
 /* =========> Defines <===========*/
 
