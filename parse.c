@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 static bool is_whitespace(const char c) {
   if (c == '\n' || c == '\t' || c == '\v' || c == '\f' || c == '\r' || c == ' ')
     return (TRUE);
@@ -27,7 +26,6 @@ t_parse *init_args(char **av) {
     data->ntte = ft_atoi(av[5]);
   else
     data->ntte = -1;
-    data->dead = FALSE;
 
   return (data);
 }
@@ -50,9 +48,7 @@ bool check_ac(int ac) {
   return (TRUE);
 }
 
-//check for max values in args
-
-
+// check for max values in args
 
 bool valid_args(int ac, char **av) {
   int i;
@@ -79,8 +75,7 @@ t_parse *parse(int ac, char **av) {
   t_parse *data;
 
   data = 0;
-  if (valid_args(ac, av))
-  {
+  if (valid_args(ac, av)) {
     data = init_args(av);
     return (data);
   }

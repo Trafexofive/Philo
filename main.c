@@ -2,22 +2,19 @@
 
 #include "philo.h"
 
-void  lock_forks(t_philo *philo)
-{
+void lock_forks(t_philo *philo) {
   pthread_mutex_lock(&philo->left_fork);
   printf("%u\n %s", philo->id, PICK);
   pthread_mutex_lock(philo->right_fork);
   printf("%u\n %s", philo->id, PICK);
 }
 
-void  unlock_forks(t_philo *philo)
-{
+void unlock_forks(t_philo *philo) {
   pthread_mutex_unlock(&philo->left_fork);
   pthread_mutex_unlock(philo->right_fork);
 }
 
-void  eating(t_philo *philo)
-{
+void eating(t_philo *philo) {
   lock_forks(philo);
   philo->times_eaten += 1;
   printf("%u\n %s", philo->id, EAT);
@@ -25,22 +22,20 @@ void  eating(t_philo *philo)
   unlock_forks(philo);
 }
 
-void  sleeping(t_philo *philo)
-{
-  usleep(philo->parse->tts);
-}
+void sleeping(t_philo *philo) { usleep(philo->parse->tts); }
 
 void routine(void *data) {
   t_philo *philo;
 
-  philo = (t_philo *) data;
+  philo = (t_philo *)data;
   while (1) {
     if (philo->parse->ntte <= philo->times_eaten)
+      break;
+
     eating(philo);
     sleeping(philo);
     printf("%u\n %s", philo->id, SLEEP);
   }
-  
 }
 
 void default_philo(t_philo *philo, pthread_mutex_t *fork, t_parse *parse) {
@@ -51,7 +46,7 @@ void default_philo(t_philo *philo, pthread_mutex_t *fork, t_parse *parse) {
     philo[i].id = i + 1;
     philo[i].left_fork = fork[i];
     philo[i].times_eaten = 0;
-    //philo[i].dead = FALSE;
+    philo[i].dead = 0;
     if (i == 0)
       philo[parse->max].right_fork = &fork[i];
     else
@@ -78,14 +73,14 @@ void init_forks(t_parse *parse, pthread_mutex_t *fork) {
   }
 }
 
-
 void init_philos(t_philo *philo, t_parse *data) {
   unsigned int i;
 
   i = 0;
 
   while (i < data->max) {
-    if (pthread_create(&philo[i].philo, NULL, (void *)routine, (void *)&philo[i]) != 0)
+    if (pthread_create(&philo[i].philo, NULL, (void *)routine,
+                       (void *)&philo[i]) != 0)
       exit_status("Thread Creating Error\n");
     i++;
   }

@@ -24,31 +24,29 @@
 
 typedef struct s_parse {
 
-  long  max;
-  long  ttd;
-  long  tts;
-  long   tte;
-  long    ntte;
+  unsigned int max;
+  unsigned int ttd;
+  unsigned int tts;
+  unsigned int tte;
+  unsigned int ntte;
 
   pthread_mutex_t allow_print;
-  
 
 } t_parse;
 
 typedef struct s_philo {
-  pthread_t   philo;
+  pthread_t philo;
 
   unsigned int id;
   pthread_mutex_t left_fork;
   pthread_mutex_t *right_fork;
-  bool            *dead;
-  unsigned int    times_eaten;
+  unsigned int dead;
+  unsigned int times_eaten;
   struct s_parse *parse;
-
 
 } t_philo;
 
-//detach no longger use?
+// detach no longger use?
 //
 typedef struct s_watchdog {
 
