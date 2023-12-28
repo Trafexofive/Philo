@@ -6,7 +6,7 @@
 /*   By: mlamkadm <mlamkadm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/28 03:53:02 by mlamkadm          #+#    #+#             */
-/*   Updated: 2023/12/28 05:19:57 by mlamkadm         ###   ########.fr       */
+/*   Updated: 2023/12/28 21:34:43 by mlamkadm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ typedef struct s_philo {
   pthread_mutex_t *right_fork;
 
   struct s_global *global;
+  bool              is_dead;
 
 } t_philo;
 
@@ -70,18 +71,35 @@ typedef struct s_global
   struct s_philo    *philo;
   long long         starting_time;
   pthread_mutex_t   allow_print;
-  bool              is_dead;
 
 }t_global;
 
 /* =========> Defines <===========*/
 
+
+/* =========> Utils <===========*/
+long long get_time(t_global *global);
+
+/* =========> Initilization <===========*/
+
+void  init_mutex(t_global *global);
+void  init_philo(t_global *global);
+void  init_global(t_global *global, t_parse *data);
+void  sleeping(t_philo *philo);
+void print_status(t_philo *philo, char *str);
+void  eat(t_philo *philo);
+void  *routine(void *arg);
+void  *watchdog(void *arg);
+void  *death(void *arg);
+void  destroy_mutex(t_global *global);
+void  ft_usleep(long long time);
+void  ft_usleep_prime(long long time);
+
+/* =========> Parse <===========*/
+
 void init_args(char **av, t_parse *data);
 bool is_digit(int c);
 bool valid_args(int ac, char **av);
-/* =========> Parse <===========*/
-long long get_time(t_global *global);
-void  init_mutex(t_global *global);
 
 
 

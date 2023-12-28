@@ -6,7 +6,7 @@
 /*   By: mlamkadm <mlamkadm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/28 03:52:56 by mlamkadm          #+#    #+#             */
-/*   Updated: 2023/12/28 05:35:51 by mlamkadm         ###   ########.fr       */
+/*   Updated: 2023/12/28 21:50:49 by mlamkadm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ long long get_time(t_global *global) {
 
   if (gettimeofday(&tv, NULL) < 0)
     return 0;
-  // if (global->starting_time == 0)
-  //   global->starting_time = ((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000));
 
   return (((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000)) - global->starting_time);
 }
@@ -83,14 +81,19 @@ void  init_philo(t_global *global)
 
   i = 0;
 
-  global->is_dead = FALSE;
   while (i < global->parse->max)
   {
+    global->philo[i].is_dead = FALSE;
     global->philo[i].id = i + 1;
     global->philo[i].times_eaten = 0;
     global->philo[i].last_meal = 0;
     global->philo[i].right_fork = &global->fork[(i + 1) % global->parse->max];
     global->philo[i].left_fork = &global->fork[i];
+    if (i % 2)
+    {
+      global->philo[i].left_fork = &global->fork[(i + 1) % global->parse->max];
+      global->philo[i].right_fork = &global->fork[i];
+    }
     global->philo[i].watchdog = &global->watchdogs[i];
 
     global->philo[i].global = global;
@@ -112,6 +115,22 @@ void  init_global(t_global *global, t_parse *data)
     init_philo(global);
 }
 
+
+void  kill_philo(t_global *global)
+{
+  int i;
+
+  i = 0;
+  while (i < global->parse->max)
+  {
+    pthread_mutex_lock(global->philo[i].watchdog);
+    global->philo[i].is_dead = TRUE;
+    pthread_mutex_unlock(global->philo[i].watchdog);
+    i++;
+  }
+}
+
+
 bool    is_death(t_global *global)
 {
   int i;
@@ -120,6 +139,7 @@ bool    is_death(t_global *global)
   while (i < global->parse->max)
   {
     pthread_mutex_lock(global->philo[i].watchdog);
+    // printf ("times_eaten: %d\n", global->philo[i].times_eaten, );
     if (global->parse->ntte != -1 && global->philo[i].times_eaten >= global->parse->ntte){
       pthread_mutex_unlock(global->philo[i].watchdog);
       usleep_prime(global->parse->tte);
@@ -127,9 +147,9 @@ bool    is_death(t_global *global)
     }
     if (get_time(global) - global->philo[i].last_meal >= global->parse->ttd)
     {
-      print_status(&global->philo[i], "died");
       pthread_mutex_unlock(global->philo[i].watchdog);
-      global->is_dead = TRUE;
+      kill_philo(global);
+      print_status(&global->philo[i], "died");
       return (TRUE);
     }
     pthread_mutex_unlock(global->philo[i].watchdog);
@@ -141,7 +161,7 @@ bool    is_death(t_global *global)
 bool death_checker(t_philo *philo)
 {
     pthread_mutex_lock(philo->watchdog);
-    if (philo->global->is_dead)
+    if (philo->is_dead)
       return(pthread_mutex_unlock(philo->watchdog) , false);
     if ((philo->global->parse->ntte != -1 && philo->times_eaten >= philo->global->parse->ntte))
       return(pthread_mutex_unlock(philo->watchdog) , false);
@@ -154,8 +174,6 @@ void  *routine(void *ptr)
 
   philo = (t_philo *)ptr;
 
-  if (philo->id % 2)
-    usleep(200);
   while (TRUE)
   {
       pthread_mutex_lock(philo->left_fork);
@@ -176,7 +194,7 @@ void  *routine(void *ptr)
   return NULL;
 }
 
-void  destroy_mutex(t_global *global) // protect the case when a pholosopher dies and keeps the mutex locked;
+void  destroy_mutex(t_global *global)
 {
   int i;
 
@@ -191,7 +209,7 @@ void  destroy_mutex(t_global *global) // protect the case when a pholosopher die
   pthread_mutex_destroy(&global->allow_print);
 }
 
-int main(int ac, char *av[]) { // fix relink
+int main(int ac, char *av[]) {
 
   t_parse data;
   t_global  global;
@@ -213,6 +231,6 @@ int main(int ac, char *av[]) { // fix relink
   free(global.watchdogs);
   free(global.thrds);
   free(global.fork);
-  destroy_mutex(&global);
+  // destroy_mutex(&global);
   return 0;
 }
