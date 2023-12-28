@@ -6,7 +6,7 @@
 /*   By: mlamkadm <mlamkadm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/28 03:52:56 by mlamkadm          #+#    #+#             */
-/*   Updated: 2023/12/28 04:08:14 by mlamkadm         ###   ########.fr       */
+/*   Updated: 2023/12/28 05:35:51 by mlamkadm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,18 @@ long long get_time(t_global *global) {
 
   if (gettimeofday(&tv, NULL) < 0)
     return 0;
-  if (global->starting_time == 0)
-    global->starting_time = ((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000));
+  // if (global->starting_time == 0)
+  //   global->starting_time = ((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000));
 
   return (((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000)) - global->starting_time);
+}
+
+long long get_time2() {
+  struct timeval tv;
+
+  if (gettimeofday(&tv, NULL) < 0)
+    return 0;
+  return (((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000)));
 }
 
 void  init_mutex(t_global *global)
@@ -43,25 +51,25 @@ void  init_mutex(t_global *global)
       pthread_mutex_init(&global->allow_print, NULL);
 }
 
-void  usleep_prime(t_philo *philo, long long time)
+void  usleep_prime(long long time)
 {
   long long start;
 
-  start = get_time(philo->global);
-  while (get_time(philo->global) - start < time)
-    usleep(200);
+  start = get_time2();
+  while (get_time2() - start < time)
+    usleep(300);
 }
 
 void  sleeping(t_philo *philo)
 {
-  usleep_prime(philo, philo->global->parse->tts);
   print_status(philo, SLEEP);
+  usleep_prime(philo->global->parse->tts);
 }
 
 void eat(t_philo *philo)
 {
-  usleep_prime(philo, philo->global->parse->tte);
   print_status(philo, EAT);
+  usleep_prime(philo->global->parse->tte);
   pthread_mutex_lock(philo->watchdog);
   if (philo->global->parse->ntte != -1)
     philo->times_eaten++;
@@ -88,6 +96,7 @@ void  init_philo(t_global *global)
     global->philo[i].global = global;
     i++;
   }
+  global->starting_time = get_time2();
 }
 
 void  init_global(t_global *global, t_parse *data)
@@ -111,12 +120,12 @@ bool    is_death(t_global *global)
   while (i < global->parse->max)
   {
     pthread_mutex_lock(global->philo[i].watchdog);
-    if (global->parse->ntte != -1 && global->philo[i].times_eaten < global->parse->ntte){
+    if (global->parse->ntte != -1 && global->philo[i].times_eaten >= global->parse->ntte){
       pthread_mutex_unlock(global->philo[i].watchdog);
-      // usleep_prime(&global->philo[i], global->parse->tte);
+      usleep_prime(global->parse->tte);
       return (TRUE);
     }
-    if (global->philo[i].last_meal && get_time(global) - global->philo[i].last_meal >= global->parse->ttd)
+    if (get_time(global) - global->philo[i].last_meal >= global->parse->ttd)
     {
       print_status(&global->philo[i], "died");
       pthread_mutex_unlock(global->philo[i].watchdog);
@@ -124,6 +133,7 @@ bool    is_death(t_global *global)
       return (TRUE);
     }
     pthread_mutex_unlock(global->philo[i].watchdog);
+    usleep(200);
     i++;
   }
   return (FALSE);
@@ -133,7 +143,7 @@ bool death_checker(t_philo *philo)
     pthread_mutex_lock(philo->watchdog);
     if (philo->global->is_dead)
       return(pthread_mutex_unlock(philo->watchdog) , false);
-    if ((philo->global->parse->ntte != -1 && philo->times_eaten < philo->global->parse->ntte))
+    if ((philo->global->parse->ntte != -1 && philo->times_eaten >= philo->global->parse->ntte))
       return(pthread_mutex_unlock(philo->watchdog) , false);
     return (pthread_mutex_unlock(philo->watchdog), true);
 }
@@ -152,43 +162,19 @@ void  *routine(void *ptr)
       print_status(philo, PICK);
       pthread_mutex_lock(philo->right_fork);
       print_status(philo, PICK);
-      if (!death_checker(philo))
-      {
-        pthread_mutex_unlock(philo->watchdog);
-        pthread_mutex_unlock(philo->left_fork);
-        pthread_mutex_unlock(philo->right_fork);
-        return NULL;
-      }
       eat(philo);
+      if (!death_checker(philo))
+		    return (pthread_mutex_unlock(philo->left_fork), pthread_mutex_unlock(philo->right_fork), NULL);
       pthread_mutex_unlock(philo->left_fork);
       pthread_mutex_unlock(philo->right_fork);
-      if (!death_checker(philo))
-		    return (pthread_mutex_unlock(philo->watchdog), NULL);
       sleeping(philo);
-      // if (!death_checker(philo))
-      //   return (pthread_mutex_unlock(philo->watchdog),NULL);
       print_status(philo, THINKING);
       if (!death_checker(philo))
-        return (pthread_mutex_unlock(philo->watchdog),NULL);
+        return (NULL);
       usleep(200);
   }
   return NULL;
 }
-
-// void  set_death(t_global *global)
-// {
-//   int i;
-
-//   i = 0;
-//   while (i < global->parse->max)
-//   {
-//     pthread_mutex_lock(global->philo[i].watchdog);
-//     global->philo[i].is_dead = TRUE;
-//     pthread_mutex_unlock(global->philo[i].watchdog);
-//     i++;
-//   }
-// }
-
 
 void  destroy_mutex(t_global *global) // protect the case when a pholosopher dies and keeps the mutex locked;
 {
@@ -228,6 +214,5 @@ int main(int ac, char *av[]) { // fix relink
   free(global.thrds);
   free(global.fork);
   destroy_mutex(&global);
-  puts("done");
   return 0;
 }

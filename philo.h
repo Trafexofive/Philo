@@ -6,7 +6,7 @@
 /*   By: mlamkadm <mlamkadm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/28 03:53:02 by mlamkadm          #+#    #+#             */
-/*   Updated: 2023/12/28 03:54:08 by mlamkadm         ###   ########.fr       */
+/*   Updated: 2023/12/28 05:19:57 by mlamkadm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ typedef struct s_philo {
 
   unsigned int id;
   int times_eaten;
-  int last_meal;
+  long long last_meal;
 
   pthread_mutex_t *watchdog;
   pthread_mutex_t *left_fork;
