@@ -35,8 +35,6 @@ typedef struct s_parse {
   int             tte;
   int             ntte;
 
-  bool  dead;
-
 } t_parse;
 
 typedef struct s_philo {
@@ -48,6 +46,7 @@ typedef struct s_philo {
   pthread_mutex_t *watchdog;
   pthread_mutex_t *left_fork;
   pthread_mutex_t *right_fork;
+  bool            is_dead;
 
   struct s_global *global;
 

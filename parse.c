@@ -24,7 +24,6 @@ void init_args(char **av, t_parse *data)
     data->ntte = ft_atoi(av[5]);
   else
     data->ntte = -1;
-	data->dead = 0;
   if (data->max < 0 || data->ttd < 0 || data->tte < 0 || data->tts < 0)
       {
         ft_putstr_fd("Invalid arguments", 1);
