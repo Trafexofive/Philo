@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlamkadm <mlamkadm@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/28 03:52:56 by mlamkadm          #+#    #+#             */
+/*   Updated: 2023/12/28 04:08:14 by mlamkadm         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 
 #include "philo.h"
 
@@ -27,7 +39,6 @@ void  init_mutex(t_global *global)
       {
         pthread_mutex_init(&global->fork[i], NULL);
         pthread_mutex_init(&global->watchdogs[i], NULL);
-        global->philo[i].is_dead = FALSE;
       }
       pthread_mutex_init(&global->allow_print, NULL);
 }
@@ -64,6 +75,7 @@ void  init_philo(t_global *global)
 
   i = 0;
 
+  global->is_dead = FALSE;
   while (i < global->parse->max)
   {
     global->philo[i].id = i + 1;
@@ -91,16 +103,39 @@ void  init_global(t_global *global, t_parse *data)
     init_philo(global);
 }
 
+bool    is_death(t_global *global)
+{
+  int i;
+
+  i = 0;
+  while (i < global->parse->max)
+  {
+    pthread_mutex_lock(global->philo[i].watchdog);
+    if (global->parse->ntte != -1 && global->philo[i].times_eaten < global->parse->ntte){
+      pthread_mutex_unlock(global->philo[i].watchdog);
+      // usleep_prime(&global->philo[i], global->parse->tte);
+      return (TRUE);
+    }
+    if (global->philo[i].last_meal && get_time(global) - global->philo[i].last_meal >= global->parse->ttd)
+    {
+      print_status(&global->philo[i], "died");
+      pthread_mutex_unlock(global->philo[i].watchdog);
+      global->is_dead = TRUE;
+      return (TRUE);
+    }
+    pthread_mutex_unlock(global->philo[i].watchdog);
+    i++;
+  }
+  return (FALSE);
+}
 bool death_checker(t_philo *philo)
 {
-	bool flag = true;
     pthread_mutex_lock(philo->watchdog);
-    if ((philo->global->parse->ntte != -1 && philo->times_eaten < philo->global->parse->ntte) || philo->is_dead == TRUE)
-       flag = false;
-    if (philo->last_meal && get_time(philo->global) - philo->last_meal >= philo->global->parse->ttd)
-	flag = false;
-    pthread_mutex_unlock(philo->watchdog);
-    return flag;
+    if (philo->global->is_dead)
+      return(pthread_mutex_unlock(philo->watchdog) , false);
+    if ((philo->global->parse->ntte != -1 && philo->times_eaten < philo->global->parse->ntte))
+      return(pthread_mutex_unlock(philo->watchdog) , false);
+    return (pthread_mutex_unlock(philo->watchdog), true);
 }
 
 void  *routine(void *ptr)
@@ -125,20 +160,13 @@ void  *routine(void *ptr)
         return NULL;
       }
       eat(philo);
-      if (!death_checker(philo))
-      {
-		pthread_mutex_unlock(philo->watchdog);
-        pthread_mutex_unlock(philo->left_fork);
-        pthread_mutex_unlock(philo->right_fork);
-        return NULL;
-      }
       pthread_mutex_unlock(philo->left_fork);
-      // if (!death_checker(philo))
-      //   return NULL;
       pthread_mutex_unlock(philo->right_fork);
-      sleeping(philo);
       if (!death_checker(philo))
-        return (pthread_mutex_unlock(philo->watchdog),NULL);
+		    return (pthread_mutex_unlock(philo->watchdog), NULL);
+      sleeping(philo);
+      // if (!death_checker(philo))
+      //   return (pthread_mutex_unlock(philo->watchdog),NULL);
       print_status(philo, THINKING);
       if (!death_checker(philo))
         return (pthread_mutex_unlock(philo->watchdog),NULL);
@@ -147,45 +175,20 @@ void  *routine(void *ptr)
   return NULL;
 }
 
-void  set_death(t_global *global)
-{
-  int i;
+// void  set_death(t_global *global)
+// {
+//   int i;
 
-  i = 0;
-  while (i < global->parse->max)
-  {
-    pthread_mutex_lock(global->philo[i].watchdog);
-    global->philo[i].is_dead = TRUE;
-    pthread_mutex_unlock(global->philo[i].watchdog);
-    i++;
-  }
-}
+//   i = 0;
+//   while (i < global->parse->max)
+//   {
+//     pthread_mutex_lock(global->philo[i].watchdog);
+//     global->philo[i].is_dead = TRUE;
+//     pthread_mutex_unlock(global->philo[i].watchdog);
+//     i++;
+//   }
+// }
 
-bool    is_death(t_global *global)
-{
-  int i;
-
-  i = 0;
-  while (i < global->parse->max)
-  {
-    pthread_mutex_lock(global->philo[i].watchdog);
-    if (global->parse->ntte != -1 && global->philo[i].times_eaten < global->parse->ntte){
-    pthread_mutex_unlock(global->philo[i].watchdog);
-      usleep_prime(&global->philo[i], global->parse->tte);
-      return (TRUE);
-    }
-    if (global->philo[i].last_meal && get_time(global) - global->philo[i].last_meal >= global->parse->ttd)
-    {
-      print_status(&global->philo[i], "died");
-     pthread_mutex_unlock(global->philo[i].watchdog);
-      set_death(global);
-      return (TRUE);
-    }
-    pthread_mutex_unlock(global->philo[i].watchdog);
-    i++;
-  }
-  return (FALSE);
-}
 
 void  destroy_mutex(t_global *global) // protect the case when a pholosopher dies and keeps the mutex locked;
 {
@@ -198,6 +201,7 @@ void  destroy_mutex(t_global *global) // protect the case when a pholosopher die
     pthread_mutex_destroy(&global->watchdogs[i]);
     i++;
   }
+  pthread_mutex_unlock(&global->allow_print);
   pthread_mutex_destroy(&global->allow_print);
 }
 
@@ -219,11 +223,11 @@ int main(int ac, char *av[]) { // fix relink
   }
   while (!is_death(&global))
     usleep(200);
-  pthread_mutex_unlock(&global.allow_print);
   free(global.philo);
   free(global.watchdogs);
   free(global.thrds);
   free(global.fork);
-  // destroy_mutex(&global);
+  destroy_mutex(&global);
+  puts("done");
   return 0;
 }

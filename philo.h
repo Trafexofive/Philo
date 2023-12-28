@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mlamkadm <mlamkadm@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/28 03:53:02 by mlamkadm          #+#    #+#             */
+/*   Updated: 2023/12/28 03:54:08 by mlamkadm         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 
 
 #ifndef PHILO_H
@@ -26,9 +38,6 @@
 
 typedef struct s_parse {
 
-  
-  pthread_mutex_t is_dead;
-
   int             max;
   int             ttd;
   int             tts;
@@ -46,7 +55,6 @@ typedef struct s_philo {
   pthread_mutex_t *watchdog;
   pthread_mutex_t *left_fork;
   pthread_mutex_t *right_fork;
-  bool            is_dead;
 
   struct s_global *global;
 
@@ -62,6 +70,7 @@ typedef struct s_global
   struct s_philo    *philo;
   long long         starting_time;
   pthread_mutex_t   allow_print;
+  bool              is_dead;
 
 }t_global;
 
