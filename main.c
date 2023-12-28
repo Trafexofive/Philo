@@ -2,115 +2,127 @@
 #include "philo.h"
 
 void print_status(t_philo *philo, char *str) {
-  // pthread_mutex_lock(&philo->parse->allow_print);
-  printf("%u %s\n", philo->id, str);
-  // pthread_mutex_unlock(&philo->parse->allow_print);
+  pthread_mutex_lock(philo->global->watchdogs);
+  printf("%lld %d %s\n", get_time(philo->global),philo->id, str);
+  pthread_mutex_unlock(philo->global->watchdogs);
 }
-long long get_time(void) {
+long long get_time(t_global *global) {
   struct timeval tv;
 
-  if (gettimeofday(&tv, NULL))
+  if (gettimeofday(&tv, NULL) < 0)
     return 0;
-  return ((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000));
+  if (global->starting_time == 0)
+    global->starting_time = ((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000));
+
+  return (((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000)) - global->starting_time);
 }
 
-void eating(t_philo *philo) {
-  pthread_mutex_lock(philo->left_fork);
-  pthread_mutex_lock(philo->right_fork);
+void  init_mutex(t_global *global)
+{
+      int i = -1;
 
-  long long start = get_time();
-
-  while (get_time() - start < philo->parse->ttd)
-    print_status(philo, EAT);
-  usleep(philo->parse->tte);
+      while (++i < global->parse->max)
+      {
+        pthread_mutex_init(&global->fork[i], NULL);
+        pthread_mutex_init(&global->watchdogs[i], NULL);
+      }
+      pthread_mutex_init(&global->allow_print, NULL);
 }
 
-void sleeping(t_philo *philo) { usleep(philo->parse->tts); }
+void  usleep_prime(t_philo *philo, long long time)
+{
+  long long start;
 
-void routine(void *data) {
+  start = get_time(philo->global);
+  while (get_time(philo->global) - start < time)
+    usleep(100);
+}
+
+void  sleeping(t_philo *philo)
+{
+  usleep_prime(philo, philo->global->parse->tts);
+  print_status(philo, SLEEP);
+}
+
+void eat(t_philo *philo)
+{
+  usleep_prime(philo, philo->global->parse->tte);
+  print_status(philo, EAT);
+  // philo->times_eaten++;
+}
+
+
+void  init_philo(t_global *global)
+{
+  int i;
+
+  i = 0;
+
+  while (i < global->parse->max)
+  {
+    global->philo[i].id = i + 1;
+    global->philo[i].times_eaten = 0;
+    global->philo[i].last_meal = 0;
+    global->philo[i].right_fork = &global->fork[(i + 1) % global->parse->max];
+    global->philo[i].left_fork = &global->fork[i];
+    global->philo[i].watchdog = &global->watchdogs[i];
+
+    global->philo[i].global = global;
+    i++;
+  }
+}
+
+void  init_global(t_global *global, t_parse *data)
+{
+    global->philo = malloc(sizeof(t_philo) * data->max);
+    global->watchdogs = malloc(sizeof(pthread_mutex_t) * data->max);
+    global->thrds = malloc(sizeof(pthread_t) * data->max);
+    global->fork = malloc(sizeof(pthread_mutex_t) * data->max);
+    global->parse = data;
+    global->starting_time = 0;
+
+    init_mutex(global);
+    init_philo(global);
+}
+
+
+void  *routine(void *ptr)
+{
   t_philo *philo;
 
-  philo = (t_philo *)data;
-  if (philo->id % 2 == 0)
-    usleep(100);
-  while (TRUE) {
-    eating(philo);
-    sleeping(philo);
-    print_status(philo, SLEEP);
-    print_status(philo, THINKING);
-  }
-}
+  philo = (t_philo *)ptr;
 
-void default_philo(t_philo *philo, pthread_mutex_t *fork, t_parse *parse,
-                   pthread_mutex_t *watchdog) {
-  unsigned int i;
-
-  i = 0;
-  while (i < parse->max) {
-    philo[i].id = i + 1;
-    philo[i].left_fork = &fork[i];
-    philo[i].times_eaten = 0;
-    philo[i].parse = parse;
-    philo[i].right_fork = &fork[(i + 1) % parse->max];
-    philo[i].watchdog = &watchdog[i];
-    i++;
-  }
-}
-
-void exit_status(char *str) {
-  printf("%s", str);
-  exit(1);
-}
-
-void init_forks(t_parse *parse, pthread_mutex_t *fork,
-                pthread_mutex_t *watchdog) {
-  unsigned int i;
-
-  i = 0;
-
-  while (i < parse->max) {
-    if (pthread_mutex_init(&fork[i], NULL) != 0)
-      exit_status("Mutex Init Error\n");
-    i++;
-  }
-  i = 0;
-  while (i < parse->max) {
-    if (pthread_mutex_init(&watchdog[i], NULL) != 0)
-      exit_status("Mutex Init Error\n");
-    i++;
-  }
-}
-
-void init_philos(t_philo *philo, t_parse *data) {
-  unsigned int i;
-
-  i = 0;
-
-  while (i < data->max) {
-    if (pthread_create(&philo[i].philo, NULL, (void *)routine,
-                       (void *)&philo[i]) != 0)
-      exit_status("Thread Creating Error\n");
-    i++;
-  }
-  i = 0;
-  while (i < data->max) {
-    if (pthread_detach(philo[i].philo) != 0)
-      exit_status("Thread Creating Error\n");
-    i++;
+  if (philo->id % 2)
+    usleep(200);
+  while (TRUE)
+  {
+      pthread_mutex_lock(philo->left_fork);
+      print_status(philo, PICK);
+      pthread_mutex_lock(philo->right_fork);
+      print_status(philo, PICK);
+      eat(philo);
+      pthread_mutex_unlock(philo->left_fork);
+      pthread_mutex_unlock(philo->right_fork);
+      sleeping(philo);
+      print_status(philo, THINKING);
   }
 }
 
 int main(int ac, char *av[]) {
-  t_parse *data;
 
-  data = parse(ac, av);
-  t_philo philo[data->max];
-  pthread_mutex_t fork[data->max];
-  pthread_mutex_t watchdog[data->max];
+  t_parse data;
+  t_global  global;
+  int i = 0;
 
-  init_forks(data, fork, watchdog);
-  default_philo(philo, fork, data);
-  init_philos(philo, data);
+  if (valid_args(ac, av))
+    init_args(av, &data);
 
+    init_global(&global, &data);
+    while (i < global.parse->max)
+    {
+      pthread_create(&global.thrds[i], NULL, &routine, &global.philo[i]);
+      pthread_detach(global.thrds[i]);
+      i++;
+    }
   return 0;
 }

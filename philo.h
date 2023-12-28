@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/time.h>
+
 #include <unistd.h>
 
 /* =========> Macros <=============*/
@@ -25,34 +26,55 @@
 
 typedef struct s_parse {
 
-  unsigned int max;
-  unsigned int ttd;
-  unsigned int tts;
-  unsigned int tte;
-  unsigned int ntte;
-
-  pthread_mutex_t allow_print;
+  
   pthread_mutex_t is_dead;
-  unsigned int dead;
+
+  int             max;
+  int             ttd;
+  int             tts;
+  int             tte;
+  int             ntte;
+
+  bool  dead;
 
 } t_parse;
 
 typedef struct s_philo {
-  pthread_t philo;
 
   unsigned int id;
+  int times_eaten;
+  int last_meal;
+
+  pthread_mutex_t *watchdog;
   pthread_mutex_t *left_fork;
   pthread_mutex_t *right_fork;
-  unsigned int times_eaten;
-  unsigned int last_meal;
-  pthread_mutex_t *watchdog;
 
-  struct s_parse *parse;
+  struct s_global *global;
 
 } t_philo;
 
+typedef struct s_global
+{
+  pthread_mutex_t   *fork;
+  pthread_mutex_t   *watchdogs;
+  pthread_t         *thrds;
+
+  struct s_parse    *parse;
+  struct s_philo    *philo;
+  long long         starting_time;
+  pthread_mutex_t   allow_print;
+
+}t_global;
+
 /* =========> Defines <===========*/
 
-t_parse *parse(int ac, char **av);
+void init_args(char **av, t_parse *data);
+bool is_digit(int c);
+bool valid_args(int ac, char **av);
+/* =========> Parse <===========*/
+long long get_time(t_global *global);
+void  init_mutex(t_global *global);
+
+
 
 #endif

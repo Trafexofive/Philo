@@ -6,7 +6,7 @@
 /*   By: mlamkadm <mlamkadm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/30 02:04:59 by mlamkadm          #+#    #+#             */
-/*   Updated: 2023/12/02 16:50:41 by mlamkadm         ###   ########.fr       */
+/*   Updated: 2023/12/27 23:05:48 by mlamkadm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ long	ft_atoi(const char *str)
 	int_value = 0;
 	i = 0;
 	sign = 1;
-	if (!str)
-		return (0);
+	if (!str || !*str)
+		return (-1);
 	while (ft_whitespace(str[i]) == 0)
 		i++;
 	if (str[i] == '-' || str[i] == '+')

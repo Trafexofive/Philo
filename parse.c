@@ -13,10 +13,8 @@ static bool is_whitespace(const char c) {
     return (FALSE);
 }
 
-t_parse *init_args(char **av) {
-  t_parse *data;
-
-  data = malloc(sizeof(t_parse));
+void init_args(char **av, t_parse *data)
+{
 
   data->max = ft_atoi(av[1]);
   data->ttd = ft_atoi(av[2]);
@@ -27,10 +25,11 @@ t_parse *init_args(char **av) {
   else
     data->ntte = -1;
 	data->dead = 0;
-	pthread_mutex_init(&data->allow_print, NULL);
-	pthread_mutex_init(&data->is_dead, NULL);
-
-  return (data);
+  if (data->max < 0 || data->ttd < 0 || data->tte < 0 || data->tts < 0)
+      {
+        ft_putstr_fd("Invalid arguments", 1);
+        return ;
+      }
 }
 
 bool is_digit(int c) {
@@ -58,10 +57,13 @@ bool valid_args(int ac, char **av) {
   int j;
 
   i = 1;
+
   if (!check_ac(ac))
     return (FALSE);
   while (av[i]) {
     j = 0;
+    if (!av[i] && av[i][j])
+      ft_putstr_fd("Invalid arguments", 1);      
     while (av[i][j]) {
       if (is_digit(av[i][j]) == FALSE || is_whitespace(av[i][j]) == TRUE) {
         ft_putstr_fd("Invalid arguments", 1);
@@ -72,15 +74,4 @@ bool valid_args(int ac, char **av) {
     i++;
   }
   return (TRUE);
-}
-
-t_parse *parse(int ac, char **av) {
-  t_parse *data;
-
-  data = 0;
-  if (valid_args(ac, av)) {
-    data = init_args(av);
-    return (data);
-  }
-  return NULL;
 }
